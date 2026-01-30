@@ -1,15 +1,18 @@
 import { HelpCircle } from 'lucide-react';
 import { formatTime } from '@/utils/time';
+import { DayTimeline } from '@/components/DayTimeline';
+import { StudySession } from '@/types';
 
 interface MainTimerProps {
   totalTime: number;
   isActive: boolean;
+  todaySessions: StudySession[];
 }
 
-export const MainTimer = ({ totalTime, isActive }: MainTimerProps) => {
+export const MainTimer = ({ totalTime, isActive, todaySessions }: MainTimerProps) => {
   return (
-    <div className="py-8 px-4 text-center">
-      <div className="flex items-center justify-center gap-2">
+    <div className="py-6 px-4">
+      <div className="flex items-center justify-center gap-2 mb-4">
         <h1 
           className={`timer-font text-6xl font-semibold text-foreground tracking-tight ${
             isActive ? 'timer-glow timer-active' : ''
@@ -22,8 +25,11 @@ export const MainTimer = ({ totalTime, isActive }: MainTimerProps) => {
         </button>
       </div>
       {isActive && (
-        <p className="text-primary text-sm mt-2 fade-in">Timer running...</p>
+        <p className="text-primary text-sm text-center mb-4 fade-in">Timer running...</p>
       )}
+      
+      {/* 24-Hour D-Day Timeline */}
+      <DayTimeline sessions={todaySessions} />
     </div>
   );
 };

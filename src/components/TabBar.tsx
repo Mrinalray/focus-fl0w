@@ -7,7 +7,7 @@ interface TabBarProps {
 
 const tabs: { id: TabType; label: string }[] = [
   { id: 'timer', label: 'Timer' },
-  { id: 'books', label: 'Books' },
+  { id: 'calendar', label: 'Calendar' },
   { id: 'insights', label: 'Insights' },
   { id: 'planner', label: 'Planner' },
 ];

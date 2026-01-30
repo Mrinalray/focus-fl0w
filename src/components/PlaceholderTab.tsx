@@ -1,21 +1,11 @@
-import { BookOpen, BarChart3, CalendarDays } from 'lucide-react';
+import { CalendarDays } from 'lucide-react';
 import { TabType } from '@/types';
 
 interface PlaceholderTabProps {
   tab: TabType;
 }
 
-const tabConfig = {
-  books: {
-    icon: BookOpen,
-    title: 'Books',
-    description: 'Track your reading progress and book collection',
-  },
-  insights: {
-    icon: BarChart3,
-    title: 'Insights',
-    description: 'View your study statistics and progress charts',
-  },
+const tabConfig: Record<string, { icon: typeof CalendarDays; title: string; description: string }> = {
   planner: {
     icon: CalendarDays,
     title: 'Planner',
@@ -24,9 +14,11 @@ const tabConfig = {
 };
 
 export const PlaceholderTab = ({ tab }: PlaceholderTabProps) => {
-  if (tab === 'timer') return null;
+  if (tab === 'timer' || tab === 'calendar' || tab === 'insights') return null;
   
   const config = tabConfig[tab];
+  if (!config) return null;
+  
   const Icon = config.icon;
 
   return (
