@@ -6,4 +6,19 @@ export interface Subject {
   createdAt: number;
 }
 
-export type TabType = 'timer' | 'books' | 'insights' | 'planner';
+export interface StudySession {
+  id: string;
+  subjectId: string;
+  subjectName: string;
+  startTime: number;
+  endTime: number;
+  duration: number; // in seconds
+}
+
+export interface UserProfile {
+  name: string;
+  avatarUrl?: string;
+}
+
+export type TabType = 'timer' | 'calendar' | 'insights' | 'planner';
+export type BottomNavType = 'home' | 'calendar' | 'more';

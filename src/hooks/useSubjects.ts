@@ -25,7 +25,12 @@ const saveSubjects = (subjects: Subject[]) => {
   }
 };
 
-export const useSubjects = () => {
+interface UseSubjectsOptions {
+  onTimerStart?: (subjectId: string, subjectName: string) => void;
+  onTimerStop?: () => void;
+}
+
+export const useSubjects = (options?: UseSubjectsOptions) => {
   const [subjects, setSubjects] = useState<Subject[]>(getStoredSubjects);
   const [activeSubjectId, setActiveSubjectId] = useState<string | null>(null);
 
@@ -64,10 +69,11 @@ export const useSubjects = () => {
 
   const deleteSubject = useCallback((id: string) => {
     if (activeSubjectId === id) {
+      options?.onTimerStop?.();
       setActiveSubjectId(null);
     }
     setSubjects(prev => prev.filter(s => s.id !== id));
-  }, [activeSubjectId]);
+  }, [activeSubjectId, options]);
 
   const editSubject = useCallback((id: string, newName: string) => {
     setSubjects(prev => 
@@ -82,29 +88,38 @@ export const useSubjects = () => {
 
       // If starting this timer, stop all others
       if (!subject.isRunning) {
+        // End previous session if any
+        if (activeSubjectId) {
+          options?.onTimerStop?.();
+        }
+        
         setActiveSubjectId(id);
+        options?.onTimerStart?.(id, subject.name);
+        
         return prev.map(s => ({
           ...s,
           isRunning: s.id === id ? true : false
         }));
       } else {
         // Stopping this timer
+        options?.onTimerStop?.();
         setActiveSubjectId(null);
         return prev.map(s => 
           s.id === id ? { ...s, isRunning: false } : s
         );
       }
     });
-  }, []);
+  }, [activeSubjectId, options]);
 
   const resetTimer = useCallback((id: string) => {
     if (activeSubjectId === id) {
+      options?.onTimerStop?.();
       setActiveSubjectId(null);
     }
     setSubjects(prev => 
       prev.map(s => s.id === id ? { ...s, timeSpent: 0, isRunning: false } : s)
     );
-  }, [activeSubjectId]);
+  }, [activeSubjectId, options]);
 
   const getTotalTime = useCallback(() => {
     return subjects.reduce((acc, s) => acc + s.timeSpent, 0);
