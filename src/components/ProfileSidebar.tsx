@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { X, User, Edit2, Check } from 'lucide-react';
+import { X, User, Edit2, Check, LogOut, LogIn } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { UserProfile } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProfileSidebarProps {
   isOpen: boolean;
@@ -29,6 +31,7 @@ export const ProfileSidebar = ({
   onUpdateName,
   totalStudyTime 
 }: ProfileSidebarProps) => {
+  const { user, profile: authProfile, isAuthenticated, signInWithGoogle, signOut } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(profile.name);
 
@@ -46,6 +49,14 @@ export const ProfileSidebar = ({
     }
   };
 
+  const displayName = isAuthenticated && authProfile?.displayName 
+    ? authProfile.displayName 
+    : profile.name;
+    
+  const avatarUrl = isAuthenticated && authProfile?.avatarUrl 
+    ? authProfile.avatarUrl 
+    : profile.avatarUrl;
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent side="left" className="w-[300px] bg-background border-border">
@@ -56,9 +67,9 @@ export const ProfileSidebar = ({
         <div className="flex flex-col items-center">
           {/* Avatar */}
           <Avatar className="w-24 h-24 mb-4">
-            <AvatarImage src={profile.avatarUrl} alt={profile.name} />
+            <AvatarImage src={avatarUrl} alt={displayName} />
             <AvatarFallback className="bg-primary/20 text-primary text-2xl">
-              {profile.name.charAt(0).toUpperCase()}
+              {displayName.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
@@ -83,16 +94,23 @@ export const ProfileSidebar = ({
               </div>
             ) : (
               <>
-                <h2 className="text-xl font-semibold text-foreground">{profile.name}</h2>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="p-1 hover:bg-secondary rounded-full transition-colors"
-                >
-                  <Edit2 className="w-4 h-4 text-muted-foreground" />
-                </button>
+                <h2 className="text-xl font-semibold text-foreground">{displayName}</h2>
+                {!isAuthenticated && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="p-1 hover:bg-secondary rounded-full transition-colors"
+                  >
+                    <Edit2 className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                )}
               </>
             )}
           </div>
+          
+          {/* Email if logged in */}
+          {isAuthenticated && user?.email && (
+            <p className="text-sm text-muted-foreground mb-2">{user.email}</p>
+          )}
 
           {/* Stats */}
           <div className="w-full mt-6 space-y-3">
@@ -100,6 +118,28 @@ export const ProfileSidebar = ({
               <p className="text-sm text-muted-foreground">Total Study Time</p>
               <p className="text-2xl font-bold text-primary">{formatTotalTime(totalStudyTime)}</p>
             </div>
+          </div>
+          
+          {/* Auth buttons */}
+          <div className="w-full mt-6">
+            {isAuthenticated ? (
+              <Button 
+                variant="outline" 
+                className="w-full gap-2" 
+                onClick={signOut}
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </Button>
+            ) : (
+              <Button 
+                className="w-full gap-2" 
+                onClick={signInWithGoogle}
+              >
+                <LogIn className="w-4 h-4" />
+                Sign in with Google
+              </Button>
+            )}
           </div>
         </div>
       </SheetContent>

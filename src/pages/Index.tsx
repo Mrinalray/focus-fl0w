@@ -9,6 +9,7 @@ import { PlannerTab } from '@/components/PlannerTab';
 import { CalendarTab } from '@/components/CalendarTab';
 import { InsightsTab } from '@/components/InsightsTab';
 import { MoreTab } from '@/components/MoreTab';
+import { GroupsTab } from '@/components/GroupsTab';
 import { useSubjects } from '@/hooks/useSubjects';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useProfile } from '@/hooks/useProfile';
@@ -66,9 +67,13 @@ const Index = () => {
   };
 
   const renderContent = () => {
-    // More tab overrides everything
+    // Handle bottom nav special views
     if (activeNav === 'more') {
       return <MoreTab />;
+    }
+    
+    if (activeNav === 'groups') {
+      return <GroupsTab />;
     }
 
     // Otherwise render based on active tab
@@ -111,7 +116,7 @@ const Index = () => {
         totalStudyTime={getTotalTime()}
       />
       
-      {activeNav !== 'more' && (
+      {activeNav !== 'more' && activeNav !== 'groups' && (
         <>
           <MainTimer 
             totalTime={getTotalTime()} 
@@ -126,7 +131,7 @@ const Index = () => {
         {renderContent()}
       </main>
 
-      {activeTab === 'timer' && activeNav !== 'more' && (
+      {activeTab === 'timer' && activeNav !== 'more' && activeNav !== 'groups' && (
         <AddSubjectButton onAdd={addSubject} />
       )}
       

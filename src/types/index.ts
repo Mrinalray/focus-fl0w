@@ -30,4 +30,4 @@ export interface UserProfile {
 }
 
 export type TabType = 'timer' | 'calendar' | 'insights' | 'planner';
-export type BottomNavType = 'home' | 'calendar' | 'more';
+export type BottomNavType = 'home' | 'groups' | 'calendar' | 'more';
