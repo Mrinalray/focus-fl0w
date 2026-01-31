@@ -5,13 +5,14 @@ import { TabBar } from '@/components/TabBar';
 import { SubjectList } from '@/components/SubjectList';
 import { AddSubjectButton } from '@/components/AddSubjectButton';
 import { BottomNav } from '@/components/BottomNav';
-import { PlaceholderTab } from '@/components/PlaceholderTab';
+import { PlannerTab } from '@/components/PlannerTab';
 import { CalendarTab } from '@/components/CalendarTab';
 import { InsightsTab } from '@/components/InsightsTab';
 import { MoreTab } from '@/components/MoreTab';
 import { useSubjects } from '@/hooks/useSubjects';
 import { useStudySessions } from '@/hooks/useStudySessions';
 import { useProfile } from '@/hooks/useProfile';
+import { useTodos } from '@/hooks/useTodos';
 import { TabType, BottomNavType } from '@/types';
 
 const Index = () => {
@@ -25,6 +26,15 @@ const Index = () => {
     endSession, 
     getTodaySessions 
   } = useStudySessions();
+  
+  const {
+    todos,
+    addTodo,
+    toggleTodo,
+    deleteTodo,
+    editTodo,
+    clearCompleted,
+  } = useTodos();
 
   const subjectOptions = useMemo(() => ({
     onTimerStart: startSession,
@@ -78,7 +88,16 @@ const Index = () => {
       case 'insights':
         return <InsightsTab sessions={sessions} getTodaySessions={getTodaySessions} />;
       case 'planner':
-        return <PlaceholderTab tab={activeTab} />;
+        return (
+          <PlannerTab
+            todos={todos}
+            onAdd={addTodo}
+            onToggle={toggleTodo}
+            onDelete={deleteTodo}
+            onEdit={editTodo}
+            onClearCompleted={clearCompleted}
+          />
+        );
       default:
         return null;
     }
