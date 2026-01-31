@@ -3,13 +3,27 @@ import { Subject } from '@/types';
 
 const STORAGE_KEY = 'focus-flow-subjects';
 
+const getTodayDate = (): string => {
+  return new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+};
+
 const getStoredSubjects = (): Subject[] => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const subjects = JSON.parse(stored);
-      // Reset all running states on load
-      return subjects.map((s: Subject) => ({ ...s, isRunning: false }));
+      const today = getTodayDate();
+      
+      // Reset timers if it's a new day and reset running states
+      return subjects.map((s: Subject) => {
+        const needsReset = s.lastResetDate !== today;
+        return { 
+          ...s, 
+          isRunning: false,
+          timeSpent: needsReset ? 0 : s.timeSpent,
+          lastResetDate: today,
+        };
+      });
     }
   } catch (e) {
     console.error('Error loading subjects:', e);
@@ -39,6 +53,34 @@ export const useSubjects = (options?: UseSubjectsOptions) => {
     saveSubjects(subjects);
   }, [subjects]);
 
+  // Check for midnight reset
+  useEffect(() => {
+    const checkMidnightReset = () => {
+      const today = getTodayDate();
+      setSubjects(prev => {
+        const needsReset = prev.some(s => s.lastResetDate !== today);
+        if (!needsReset) return prev;
+        
+        // Stop any active timer
+        if (activeSubjectId) {
+          options?.onTimerStop?.();
+          setActiveSubjectId(null);
+        }
+        
+        return prev.map(s => ({
+          ...s,
+          timeSpent: s.lastResetDate !== today ? 0 : s.timeSpent,
+          lastResetDate: today,
+          isRunning: false,
+        }));
+      });
+    };
+
+    // Check every minute for midnight crossing
+    const interval = setInterval(checkMidnightReset, 60000);
+    return () => clearInterval(interval);
+  }, [activeSubjectId, options]);
+
   // Timer tick effect
   useEffect(() => {
     if (!activeSubjectId) return;
@@ -63,6 +105,7 @@ export const useSubjects = (options?: UseSubjectsOptions) => {
       timeSpent: 0,
       isRunning: false,
       createdAt: Date.now(),
+      lastResetDate: getTodayDate(),
     };
     setSubjects(prev => [...prev, newSubject]);
   }, []);
