@@ -1,4 +1,4 @@
-import { Home, Calendar, MoreHorizontal } from 'lucide-react';
+import { Home, Calendar, MoreHorizontal, Users } from 'lucide-react';
 import { BottomNavType } from '@/types';
 
 interface NavItem {
@@ -14,6 +14,7 @@ interface BottomNavProps {
 
 const navItems: NavItem[] = [
   { icon: <Home className="w-6 h-6" />, label: 'Home', id: 'home' },
+  { icon: <Users className="w-6 h-6" />, label: 'Groups', id: 'groups' },
   { icon: <Calendar className="w-6 h-6" />, label: 'Calendar', id: 'calendar' },
   { icon: <MoreHorizontal className="w-6 h-6" />, label: 'More', id: 'more' },
 ];
