@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { X, User, Edit2, Check, LogOut, LogIn } from 'lucide-react';
+import { X, Edit2, Check, LogOut, LogIn, ChevronRight, User, Moon, Globe, Shield, Info } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { UserProfile } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -17,10 +18,7 @@ interface ProfileSidebarProps {
 const formatTotalTime = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
-  
-  if (hours > 0) {
-    return `${hours}h ${mins}m`;
-  }
+  if (hours > 0) return `${hours}h ${mins}m`;
   return `${mins}m`;
 };
 
@@ -32,21 +30,14 @@ export const ProfileSidebar = ({
   totalStudyTime 
 }: ProfileSidebarProps) => {
   const { user, profile: authProfile, isAuthenticated, signInWithGoogle, signOut } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState(profile.name);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
 
-  const handleSave = () => {
+  const handleSaveName = () => {
     onUpdateName(editName);
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSave();
-    } else if (e.key === 'Escape') {
-      setEditName(profile.name);
-      setIsEditing(false);
-    }
+    setIsEditingName(false);
   };
 
   const displayName = isAuthenticated && authProfile?.displayName 
@@ -59,87 +50,164 @@ export const ProfileSidebar = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="left" className="w-[300px] bg-background border-border">
-        <SheetHeader className="mb-6">
-          <SheetTitle className="text-foreground">Profile</SheetTitle>
+      <SheetContent side="left" className="w-[320px] bg-background border-border p-0 overflow-auto">
+        <SheetHeader className="px-4 py-3 border-b border-border">
+          <SheetTitle className="text-foreground text-center">Settings</SheetTitle>
         </SheetHeader>
 
-        <div className="flex flex-col items-center">
-          {/* Avatar */}
-          <Avatar className="w-24 h-24 mb-4">
-            <AvatarImage src={avatarUrl} alt={displayName} />
-            <AvatarFallback className="bg-primary/20 text-primary text-2xl">
-              {displayName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-
-          {/* Name */}
-          <div className="flex items-center gap-2 mb-2">
-            {isEditing ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="bg-secondary border border-border rounded-lg px-3 py-1 text-foreground text-center text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-primary"
-                  autoFocus
-                />
-                <button
-                  onClick={handleSave}
-                  className="p-1 hover:bg-secondary rounded-full transition-colors"
-                >
-                  <Check className="w-5 h-5 text-primary" />
-                </button>
-              </div>
-            ) : (
-              <>
-                <h2 className="text-xl font-semibold text-foreground">{displayName}</h2>
-                {!isAuthenticated && (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="p-1 hover:bg-secondary rounded-full transition-colors"
-                  >
-                    <Edit2 className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                )}
-              </>
+        <div className="flex flex-col">
+          {/* Profile Avatar Section */}
+          <div className="flex flex-col items-center py-5 border-b border-border">
+            <Avatar className="w-20 h-20 mb-3">
+              <AvatarImage src={avatarUrl} alt={displayName} />
+              <AvatarFallback className="bg-primary/20 text-primary text-xl">
+                {displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <h2 className="text-lg font-semibold text-foreground">{displayName}</h2>
+            {isAuthenticated && user?.email && (
+              <p className="text-xs text-muted-foreground mt-0.5">{user.email}</p>
             )}
-          </div>
-          
-          {/* Email if logged in */}
-          {isAuthenticated && user?.email && (
-            <p className="text-sm text-muted-foreground mb-2">{user.email}</p>
-          )}
-
-          {/* Stats */}
-          <div className="w-full mt-6 space-y-3">
-            <div className="bg-card rounded-xl p-4 border border-border">
-              <p className="text-sm text-muted-foreground">Total Study Time</p>
-              <p className="text-2xl font-bold text-primary">{formatTotalTime(totalStudyTime)}</p>
+            <div className="mt-2 bg-primary/10 rounded-full px-3 py-1">
+              <p className="text-xs text-primary font-medium">
+                📚 Total: {formatTotalTime(totalStudyTime)}
+              </p>
             </div>
           </div>
-          
-          {/* Auth buttons */}
-          <div className="w-full mt-6">
-            {isAuthenticated ? (
-              <Button 
-                variant="outline" 
-                className="w-full gap-2" 
-                onClick={signOut}
-              >
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </Button>
-            ) : (
-              <Button 
-                className="w-full gap-2" 
-                onClick={signInWithGoogle}
-              >
-                <LogIn className="w-4 h-4" />
-                Sign in with Google
-              </Button>
-            )}
+
+          {/* Account Settings */}
+          <div className="px-4 py-3">
+            <div className="bg-card rounded-xl border border-border divide-y divide-border">
+              {/* Nickname */}
+              <div className="p-3 flex items-center justify-between">
+                {isEditingName ? (
+                  <div className="flex items-center gap-2 w-full">
+                    <Input
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveName();
+                        if (e.key === 'Escape') setIsEditingName(false);
+                      }}
+                      className="h-8 text-sm"
+                      autoFocus
+                    />
+                    <Button size="sm" variant="ghost" onClick={handleSaveName}>
+                      <Check className="w-4 h-4 text-primary" />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <span className="text-sm">Nickname</span>
+                    <button
+                      onClick={() => !isAuthenticated && setIsEditingName(true)}
+                      className="flex items-center gap-1 text-sm text-muted-foreground"
+                    >
+                      {displayName}
+                      {!isAuthenticated && <ChevronRight className="w-4 h-4" />}
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Status Message */}
+              <div className="p-3 flex items-center justify-between">
+                {isEditingStatus ? (
+                  <div className="flex items-center gap-2 w-full">
+                    <Input
+                      value={statusMessage}
+                      onChange={(e) => setStatusMessage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === 'Escape') setIsEditingStatus(false);
+                      }}
+                      placeholder="Set a status..."
+                      className="h-8 text-sm"
+                      autoFocus
+                    />
+                    <Button size="sm" variant="ghost" onClick={() => setIsEditingStatus(false)}>
+                      <Check className="w-4 h-4 text-primary" />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <span className="text-sm">Status Message</span>
+                    <button
+                      onClick={() => setIsEditingStatus(true)}
+                      className="flex items-center gap-1 text-sm text-muted-foreground"
+                    >
+                      {statusMessage || 'Not set'}
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Category */}
+              <div className="p-3 flex items-center justify-between">
+                <span className="text-sm">Category</span>
+                <span className="text-sm text-muted-foreground flex items-center gap-1">
+                  Other <ChevronRight className="w-4 h-4" />
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Theme Settings */}
+          <div className="px-4 pb-3">
+            <div className="bg-card rounded-xl border border-border divide-y divide-border">
+              <div className="p-3 flex items-center justify-between">
+                <span className="text-sm flex items-center gap-2">
+                  <Moon className="w-4 h-4 text-muted-foreground" />
+                  Theme Settings
+                </span>
+                <span className="text-sm text-muted-foreground flex items-center gap-1">
+                  Dark <ChevronRight className="w-4 h-4" />
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* App Info */}
+          <div className="px-4 pb-3">
+            <div className="bg-card rounded-xl border border-border divide-y divide-border">
+              <div className="p-3 flex items-center justify-between">
+                <span className="text-sm flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-muted-foreground" />
+                  Privacy Policy
+                </span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="p-3 flex items-center justify-between">
+                <span className="text-sm flex items-center gap-2">
+                  <Info className="w-4 h-4 text-muted-foreground" />
+                  App Version
+                </span>
+                <span className="text-sm text-muted-foreground">1.0.0</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Auth Actions */}
+          <div className="px-4 pb-3">
+            <div className="bg-card rounded-xl border border-border divide-y divide-border">
+              {isAuthenticated ? (
+                <button
+                  onClick={signOut}
+                  className="p-3 w-full text-left text-sm text-destructive flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              ) : (
+                <button
+                  onClick={signInWithGoogle}
+                  className="p-3 w-full text-left text-sm text-primary flex items-center gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign in with Google
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </SheetContent>

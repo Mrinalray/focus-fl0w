@@ -18,9 +18,10 @@ export const Header = ({ profile, onUpdateName, totalStudyTime }: HeaderProps) =
       <header className="flex items-center justify-between px-4 py-3">
         <button 
           onClick={() => setShowProfile(true)}
-          className="p-2 hover:bg-secondary rounded-lg transition-colors"
+          className="flex items-center gap-2 p-2 hover:bg-secondary rounded-lg transition-colors"
         >
           <Menu className="w-6 h-6 text-foreground" />
+          <span className="text-sm font-medium text-foreground">Profile</span>
         </button>
         <span className="text-foreground font-medium">{formatDate()}</span>
         <span className="text-muted-foreground text-sm">D-Day</span>
