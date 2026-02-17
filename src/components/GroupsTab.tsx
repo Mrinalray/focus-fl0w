@@ -67,6 +67,13 @@ export const GroupsTab = () => {
         group={selectedGroup} 
         onBack={() => setSelectedGroup(null)}
         onLeave={() => handleLeaveGroup(selectedGroup.id)}
+        onGroupUpdated={() => {
+          setSelectedGroup(null);
+          // refetch handled by realtime
+        }}
+        onGroupDeleted={() => {
+          setSelectedGroup(null);
+        }}
       />
     );
   }
@@ -86,10 +93,8 @@ export const GroupsTab = () => {
   return (
     <div className="flex-1 flex flex-col">
       <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Users className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-semibold">Study Groups</h2>
-        </div>
+        <h2 className="text-lg font-semibold">My Groups</h2>
+        
         
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
