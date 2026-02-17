@@ -70,18 +70,15 @@ export const GroupRoom = ({ group, onBack, onLeave, onGroupUpdated, onGroupDelet
     );
   }
 
-  if (selectedMember) {
-    return (
-      <MemberProfile
-        member={selectedMember}
-        onBack={() => setSelectedMember(null)}
-        isCurrentUser={selectedMember.userId === user?.id}
-      />
-    );
-  }
-
   return (
     <div className="flex-1 flex flex-col">
+      {/* Member Profile Drawer */}
+      <MemberProfile
+        member={selectedMember}
+        open={!!selectedMember}
+        onClose={() => setSelectedMember(null)}
+        isCurrentUser={selectedMember?.userId === user?.id}
+      />
       {/* Header */}
       <div className="px-4 py-3 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-3">
